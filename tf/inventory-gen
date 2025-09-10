@@ -1,0 +1,11 @@
+#!/bin/bash
+chmod 400 *.pem
+FILENAME=../ansible/inventory.yaml
+cp ./inventory.tmpl $FILENAME
+AZURE_DNS=$(tf output -raw azure_dns)
+AWS_DNS=$(tf output -raw aws_dns)
+ssh -i aws.pem ubuntu@$AWS_DNS pwd
+ssh-keygen -R $AZURE_DNS
+ssh -i azure.pem adminuser@$AZURE_DNS pwd
+sed -i -e s/AWS_PUBLIC_IP/$AWS_DNS/ $FILENAME
+sed -i -e s/AZURE_PUBLIC_IP/$AZURE_DNS/ $FILENAME
